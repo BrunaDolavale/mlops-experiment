@@ -21,9 +21,9 @@ def plot_predictions(train_data, train_labels,  test_data, test_labels,  predict
   # Set grids
   plt.grid(which='major', c='#cccccc', linestyle='--', alpha=0.5)
   # Some text
-  plt.title('Model Results', family='Arial', fontsize=14)
-  plt.xlabel('X axis values', family='Arial', fontsize=11)
-  plt.ylabel('Y axis values', family='Arial', fontsize=11)
+  plt.title('Model Results')
+  plt.xlabel('X axis values')
+  plt.ylabel('Y axis values')
   # Show
   plt.savefig('model_results.png', dpi=120)
 
