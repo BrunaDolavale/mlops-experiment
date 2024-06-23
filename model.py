@@ -1,103 +1,33 @@
-# Import modules and packages
-import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
 
+# Carregar o conjunto de dados Iris
+iris = load_iris()
+X, y = iris.data, iris.target
 
-# Functions and procedures
-def plot_predictions(train_data, train_labels,  test_data, test_labels,  predictions):
-  """
-  Plots training data, test data and compares predictions.
-  """
-  plt.figure(figsize=(6, 5))
-  # Plot training data in blue
-  plt.scatter(train_data, train_labels, c="b", label="Training data")
-  # Plot test data in green
-  plt.scatter(test_data, test_labels, c="g", label="Testing data")
-  # Plot the predictions in red (predictions were made on the test data)
-  plt.scatter(test_data, predictions, c="r", label="Predictions")
-  # Show the legend
-  plt.legend(shadow='True')
-  # Set grids
-  plt.grid(which='major', c='#cccccc', linestyle='--', alpha=0.5)
-  # Some text
-  plt.title('Model Results')
-  plt.xlabel('X axis values')
-  plt.ylabel('Y axis values')
-  # Show
-  plt.savefig('model_results.png', dpi=120)
+# Dividir os dados em treinamento e teste
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.9, random_state=42)
 
+# Criar o modelo KNN
+knn = KNeighborsClassifier(n_neighbors=3)
 
+# Treinar o modelo
+knn.fit(X_train, y_train)
 
-def mae(y_test, y_pred):
-  """
-  Calculuates mean absolute error between y_test and y_preds.
-  """
-  return tf.metrics.mean_absolute_error(y_test, y_pred)
-  
+# Fazer previsões
+y_pred = knn.predict(X_test)
 
-def mse(y_test, y_pred):
-  """
-  Calculates mean squared error between y_test and y_preds.
-  """
-  return tf.metrics.mean_squared_error(y_test, y_pred)
+# Calcular a acurácia
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Acurácia: {accuracy:.2f}")
 
-
-# Check Tensorflow version
-print(tf.__version__)
-
-
-# Create features
-X = np.arange(-100, 100, 4)
-
-# Create labels
-y = np.arange(-90, 110, 4)
-
-
-# Split data into train and test sets
-N = 25
-X_train = X[:N] # first 40 examples (80% of data)
-y_train = y[:N]
-
-X_test = X[N:] # last 10 examples (20% of data)
-y_test = y[N:]
-
-
-# Take a single example of X
-input_shape = X[0].shape 
-
-# Take a single example of y
-output_shape = y[0].shape
-
-
-# Set random seed
-tf.random.set_seed(1989)
-
-# Create a model using the Sequential API
-model = tf.keras.Sequential([
-    tf.keras.layers.Dense(1), 
-    tf.keras.layers.Dense(1)
-    ])
-
-# Compile the model
-model.compile(loss = tf.keras.losses.mae,
-              optimizer = tf.keras.optimizers.SGD(),
-              metrics = ['mae'])
-
-# Fit the model
-model.fit(X_train, y_train, epochs=100)
-
-
-# Make and plot predictions for model_1
-y_preds = model.predict(X_test)
-plot_predictions(train_data=X_train, train_labels=y_train,  test_data=X_test, test_labels=y_test,  predictions=y_preds)
-
-
-# Calculate model_1 metrics
-mae_1 = np.round(float(mae(y_test, y_preds.squeeze()).numpy()), 2)
-mse_1 = np.round(float(mse(y_test, y_preds.squeeze()).numpy()), 2)
-print(f'\nMean Absolute Error = {mae_1}, Mean Squared Error = {mse_1}.')
-
-# Write metrics to file
-with open('metrics.txt', 'w') as outfile:
-    outfile.write(f'\nMean Absolute Error = {mae_1}, Mean Squared Error = {mse_1}.')
+# Plotar a matriz de confusão
+cm = confusion_matrix(y_test, y_pred, labels=knn.classes_)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=knn.classes_)
+disp.plot(cmap=plt.cm.Blues)
+plt.title("Matriz de Confusão")
+plt.show()
