@@ -31,3 +31,7 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=knn.classes_)
 disp.plot(cmap=plt.cm.Blues)
 plt.title("Matriz de Confusão")
 plt.show()
+plt.savefig('model_results.png', dpi=120)
+
+with open('metrics.txt', 'w') as outfile:
+    outfile.write(f'\nAcurácia = {accuracy:.2f}')
